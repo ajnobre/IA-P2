@@ -3,6 +3,8 @@ import java.io.File;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -51,10 +53,10 @@ public class SimulatedAnnealing {
 			int cost = 0;
 			int lastCost = 0;
 
-			// Calcular custo
-
 			for (int i = 0; i < 10; i++) {
-				System.out.println(distanceVariation(path, extractIJ(path)));
+				List<Integer> newpath = getNewPath(path, getIJ(path));
+				System.out.println(distance2(newpath));
+
 			}
 			break;
 		default:
@@ -83,7 +85,7 @@ public class SimulatedAnnealing {
 		}
 	}
 
-	public static int[] extractIJ(int[] path) {
+	public static int[] getIJ(int[] path) {
 		Random rand = new Random();
 		int[] ij = new int[2];
 
@@ -102,6 +104,8 @@ public class SimulatedAnnealing {
 	}
 
 	private static int[] getNeighboors(int length, int i) {
+		// neighboors[0] corresponde ao indice -1 e neighboors[1] corresponde a indice
+		// +1. Indicies podem tomam os valores de i ou j.
 		int[] neighboors = new int[2];
 		if (i == length) {
 			neighboors[0] = i - 1;
@@ -116,23 +120,49 @@ public class SimulatedAnnealing {
 		return neighboors;
 	}
 
-	public static int distance(int[] path) {
+//	public static int distance(int[] path) {
+//		int cost = 0;
+//		for (int i = 0; i < path.length - 1; i++) {
+//			cost += matrix[path[i]][path[i + 1]];
+//		}
+//		// distancia do fim ao inicio
+//		cost += matrix[path[0]][path[path.length - 1]];
+//		return cost;
+//	}
+
+	public static int distance2(List<Integer> path) {
 		int cost = 0;
-		for (int i = 0; i < path.length - 1; i++) {
-			cost += matrix[path[i]][path[i + 1]];
+		for (int i = 0; i < path.size() - 1; i++) {
+			cost += matrix[path.get(i)][path.get(i + 1)];
 		}
 		// distancia do fim ao inicio
-		cost += matrix[path[0]][path[path.length - 1]];
+		cost += matrix[path.get(0)][path.get(path.size() - 1)];
 		return cost;
 	}
 
-	public static int distanceVariation(int[] path, int[] ij) {
+	public static List<Integer> getNewPath(int[] path, int[] ij) {
 		int[] iNbrs = getNeighboors(path.length - 1, ij[0]);
-		int[] jNbrs = getNeighboors(path.length - 1, ij[1]);
-		System.out.println(iNbrs[0] + " " + iNbrs[1] + " " + jNbrs[0] + " " + jNbrs[1]);
-		return matrix[path[ij[0]]][path[ij[1]]] + matrix[path[iNbrs[1]]][path[jNbrs[1]]] - matrix[path[ij[0]]][iNbrs[1]]
-				- matrix[ij[1]][jNbrs[1]];
+		// int[] jNbrs = getNeighboors(path.length - 1, ij[1]);
+		List<Integer> arrayA = new ArrayList<Integer>();
+		List<Integer> arrayB = new ArrayList<Integer>();
 
+		for (int j = ij[1]; j != iNbrs[1]; j = ((j + 1) % path.length)) {
+			arrayA.add(path[j]);
+		}
+		for (int k = path.length - 1; k >= 0; k--) {
+			if (!arrayA.contains(path[k])) {
+				arrayB.add(path[k]);
+			}
+		}
+		int initialA = arrayA.get(0);
+		arrayA.remove(arrayA.get(0));
+		arrayA.add(initialA);
+		// System.out.println("i " + ij[0] + " j " + ij[1]);
+		arrayA.addAll(arrayB);
+
+//		return matrix[path[ij[0]]][path[ij[1]]] + matrix[path[iNbrs[1]]][path[jNbrs[1]]] - matrix[path[ij[0]]][iNbrs[1]]
+//				- matrix[ij[1]][jNbrs[1]];
+		return arrayA;
 	}
 
 }
